@@ -7,18 +7,21 @@ import math
 
 xDim = 20
 yDim = 20
-standard_wW = 1280
-standard_hW = 720
+standard_wW = 1700
+standard_hW = 900
 size_boxe = math.floor(min(standard_hW/yDim, standard_wW/xDim))
 wW = xDim * size_boxe
 hW = yDim * size_boxe
 
 floor_img = pygame.image.load("img/floor.jpg")
 boxe_img = pygame.image.load("img/boxe.jpg")
+worker_img = pygame.image.load("img/worker.jpg")
+
 floor_img = pygame.transform.scale(floor_img, (size_boxe, size_boxe))
 boxe_img = pygame.transform.scale(boxe_img, (size_boxe, size_boxe))
+worker_img = pygame.transform.scale(worker_img, (size_boxe, size_boxe))
 
-img = [floor_img, boxe_img]
+img = [floor_img, boxe_img, worker_img]
 
 board = [[0 for x in range(xDim)] for y in range(yDim)]
 
