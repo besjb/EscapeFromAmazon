@@ -66,6 +66,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                #print("Key q has been pressed")
+                running = False
+            if event.key == pygame.K_ESCAPE:
+                #print("Key esc has been pressed")
+                running = False
 
     # fill the screen with a color to wipe away anything from last frame
 
