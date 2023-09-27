@@ -13,8 +13,8 @@ size_boxe = math.floor(min(standard_hW/yDim, standard_wW/xDim))
 wW = xDim * size_boxe
 hW = yDim * size_boxe
 
-floor_img = pygame.image.load("floor.jpg")
-boxe_img = pygame.image.load("boxe.jpg")
+floor_img = pygame.image.load("img/floor.jpg")
+boxe_img = pygame.image.load("img/boxe.jpg")
 floor_img = pygame.transform.scale(floor_img, (size_boxe, size_boxe))
 boxe_img = pygame.transform.scale(boxe_img, (size_boxe, size_boxe))
 
