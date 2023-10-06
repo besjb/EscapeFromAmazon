@@ -233,22 +233,22 @@ class Agent:
         if(direction < 5):
             self.do_move(map, direction)
         elif(direction < 9):
-            self.do_move(map, direction)
+            self.do_push(map, direction)
         elif(direction < 13):
-            self.do_move(map, direction)
+            self.do_pull(map, direction)
         else:
-            self.do_move(map, direction)
+            self.do_move_box(map, direction)
     #fonctions undo
     def undo_move(self,map,direction):
         match direction:
             case 1:
-                    self.do_move(map,'S')
+                    self.do_move(map,'2')
             case 2:
-                    self.do_move(map,'N')
+                    self.do_move(map,'1')
             case 3:
-                    self.do_move(map,'E')
+                    self.do_move(map,'4')
             case 4:
-                    self.do_move(map,'O')
+                    self.do_move(map,'3')
             case _:
                 return False
         
@@ -343,11 +343,11 @@ class Agent:
         if(direction < 5):
             self.undo_move(map, direction)
         elif(direction < 9):
-            self.undo_move(map, direction)
+            self.undo_push(map, direction)
         elif(direction < 13):
-            self.undo_move(map, direction)
+            self.undo_pull(map, direction)
         else:
-            self.undo_move(map, direction)
+            self.undo_move_box(map, direction)
 
 def remplissage(map,nbCarton,agent):
     map[0][0] = 1
