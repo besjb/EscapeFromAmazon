@@ -50,6 +50,8 @@ def print_board():
             screen.blit(img[board[y][x]], (x*size_boxe, y*size_boxe))
 
 
+def init_worker():
+    board[yDim-1][random.randint(0, xDim-1)] = 2
 
 def init_boxes(nb_boxes):
     n = 0
