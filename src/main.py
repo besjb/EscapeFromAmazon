@@ -36,7 +36,7 @@ class Agent:
         actions = []
         self.move(room, actions)
         self.push(room, actions)
-        self.pull(room, actions)
+        #self.pull(room, actions)
         return actions
     #self.move_box(room)
 
@@ -49,6 +49,36 @@ class Agent:
             actions.append(3)
         if self.y+1 < dimY and room[self.x][self.y+1] == 0:
             actions.append(4)
+
+    #fonctions do
+    def do_move(self,room,direction):
+        room[self.x][self.y]=0
+        match direction:
+            case 1:
+                self.x-=1
+            case 2:
+                self.x+=1
+            case 3:
+                self.y-=1
+            case 4:
+                self.y+=1
+            case _:
+                return False
+        room[self.x][self.y]=1
+
+            #fonctions undo
+    def undo_move(self,room,direction):
+        match direction:
+            case 1:
+                self.do_move(room,'2')
+            case 2:
+                self.do_move(room,'1')
+            case 3:
+                self.do_move(room,'4')
+            case 4:
+                self.do_move(room,'3')
+            case _:
+                return False
 
     def push(self,room, actions):
         if self.x-1 >= 0 and room[self.x-1][self.y] == 3 :
@@ -63,6 +93,40 @@ class Agent:
         if self.y+1 < dimY and room[self.x][self.y+1] == 3:
             if self.y+2 < dimY and room[self.x][self.y+2] == 0 :
                 actions.append(8)
+
+    def do_push(self,room,direction):
+        match direction:
+            case 5:
+                room[self.x-1][self.y]=0
+                room[self.x-2][self.y]=3
+            case 6:
+                room[self.x+1][self.y]=0
+                room[self.x+2][self.y]=3
+            case 7:
+                room[self.x][self.y-1]=0
+                room[self.x][self.y-2]=3
+            case 8:
+                room[self.x][self.y+1]=0
+                room[self.x][self.y+2]=3
+            case _:
+                return False
+
+    def undo_push(self,room,direction):
+        match direction:
+            case 5:
+                room[self.x-1][self.y]=3
+                room[self.x-2][self.y]=0
+            case 6:
+                room[self.x+1][self.y]=3
+                room[self.x+2][self.y]=0
+            case 7:
+                room[self.x][self.y-1]=3
+                room[self.x][self.y-2]=0
+            case 8:
+                room[self.x][self.y+1]=3
+                room[self.x][self.y+2]=0
+            case _:
+                return False
                 
     def pull(self,room, actions):
         if self.x-1 >= 0 and room[self.x-1][self.y] == 3 :
@@ -77,6 +141,31 @@ class Agent:
         if self.y+1 < dimY and room[self.x][self.y+1] == 3:
             if self.y-1 >= 0 and room[self.x][self.y-1] == 0 :
                 actions.append(12)
+
+    def undo_pull(self,room,direction):
+        match direction:
+            case 9:
+                room[self.x-2][self.y]=3
+                room[self.x-1][self.y]=1
+                room[self.x][self.y]=0
+                self.x-=1
+            case 10:
+                room[self.x+2][self.y]=3
+                room[self.x+1][self.y]=1
+                room[self.x][self.y]=0
+                self.x+=1
+            case 11:
+                room[self.x][self.y-2]=3
+                room[self.x][self.y-1]=1
+                room[self.x][self.y]=0
+                self.y-=1
+            case 12:
+                room[self.x][self.y+2]=3
+                room[self.x][self.y+1]=1
+                room[self.x][self.y]=0
+                self.y+=1
+            case _:
+                return False
 
     def move_box(self,room, actions):
         if self.x-1 >= 0 and room[self.x-1][self.y] == 3 :
@@ -120,39 +209,7 @@ class Agent:
             if self.x+1 < dimX and room[self.x+1][self.y] == 0 :
                 actions.append(24)
 
-    #fonctions do
-    def do_move(self,room,direction):
-        room[self.x][self.y]=0
-        match direction:
-            case 1:
-                self.x-=1
-            case 2:
-                self.x+=1
-            case 3:
-                self.y-=1
-            case 4:
-                self.y+=1
-            case _:
-                return False
-        print("SELF XY = ", self.x, self.y)
-        room[self.x][self.y]=1
 
-    def do_push(self,room,direction):
-        match direction:
-            case 5:
-                room[self.x-1][self.y]=0
-                room[self.x-2][self.y]=3
-            case 6:
-                room[self.x+1][self.y]=0
-                room[self.x+2][self.y]=3
-            case 7:
-                room[self.x][self.y-1]=0
-                room[self.x][self.y-2]=3
-            case 8:
-                room[self.x][self.y+1]=0
-                room[self.x][self.y+2]=3
-            case _:
-                return False
 
     def do_pull(self,room,direction):
         match direction:
@@ -234,61 +291,8 @@ class Agent:
             self.do_pull(room, direction)
         else:
             self.do_move_box(room, direction)
-            #fonctions undo
-    def undo_move(self,room,direction):
-        match direction:
-            case 1:
-                self.do_move(room,'2')
-            case 2:
-                self.do_move(room,'1')
-            case 3:
-                self.do_move(room,'4')
-            case 4:
-                self.do_move(room,'3')
-            case _:
-                return False
 
-    def undo_push(self,room,direction):
-        match direction:
-            case 5:
-                room[self.x-1][self.y]=3
-                room[self.x-2][self.y]=0
-            case 6:
-                room[self.x+1][self.y]=3
-                room[self.x+2][self.y]=0
-            case 7:
-                room[self.x][self.y-1]=3
-                room[self.x][self.y-2]=0
-            case 8:
-                room[self.x][self.y+1]=3
-                room[self.x][self.y+2]=0
-            case _:
-                return False
 
-    def undo_pull(self,room,direction):
-        match direction:
-            case 9:
-                room[self.x-2][self.y]=3
-                room[self.x-1][self.y]=1
-                room[self.x][self.y]=0
-                self.x-=1
-            case 10:
-                room[self.x+2][self.y]=3
-                room[self.x+1][self.y]=1
-                room[self.x][self.y]=0
-                self.x+=1
-            case 11:
-                room[self.x][self.y-2]=3
-                room[self.x][self.y-1]=1
-                room[self.x][self.y]=0
-                self.y-=1
-            case 12:
-                room[self.x][self.y+2]=3
-                room[self.x][self.y+1]=1
-                room[self.x][self.y]=0
-                self.y+=1
-            case _:
-                return False
 
     def undo_move_box(self,room,direction):
         match direction:
@@ -336,12 +340,17 @@ class Agent:
                 return False
 
     def undo(self, room, direction):
+        print("Undo affiche")
+        affiche(room)
         if(direction < 5):
             self.undo_move(room, direction)
+            return;
         elif(direction < 9):
             self.undo_push(room, direction)
+            return;
         elif(direction < 13):
             self.undo_pull(room, direction)
+            return;
         else:
             self.undo_move_box(room, direction)
 
@@ -365,6 +374,7 @@ def remplissage(room,nbCarton,agent):
 def affiche(room):
     for i in room:
         print(i)
+    print()
 
 def eval_goal(agent):
     if(agent.goal >= agent.nb_goal):
@@ -373,7 +383,6 @@ def eval_goal(agent):
 
 def check_box(room, agent):
     if(room[agent.outX][agent.outY] == 3):
-        print("GOOOOOAL (xy) : ", agent.outX, agent.outY)
         affiche(room)
         agent.goal += 1
         room[agent.outX][agent.outY] = 0
@@ -386,16 +395,13 @@ def print_info_st(agent, room, action):
     affiche(room)
 
 def search_tree(room, agent, solve_actions, save_rooms, depth):
-    print("DEPTH = ", depth)
-    print("2 save_rooms :", save_rooms)
+    if(depth > 2):
+        return 0
     if room in save_rooms:#si on a déjà croisé cette room on stop la recherche
-        print("room croisée")
         affiche(room)
-        print(save_rooms)
         return 0
     room_copy = [row[:] for row in room]
     save_rooms.append(room_copy)#si on n'a pas croisé la room on l'ajoute à save_rooms
-    print("SAVED : ", save_rooms)
     if(eval_goal(agent) == 1):#le but est remplis
         return 1
     actions = agent.action_possible(room)#on récupère la liste des action possibles
@@ -404,16 +410,17 @@ def search_tree(room, agent, solve_actions, save_rooms, depth):
         print_info_st(agent, room, action)
         check_box(room, agent)
         solve_actions.append(action)#on ajoute cette action à la liste de la solution
-        print("1 save_room :", save_rooms)
         ret = search_tree(room, agent, solve_actions, save_rooms, depth+1)#appel récursif prochain fils
-        if(ret == 1):#on a trouvé une solution (on sort)
-           return 1
+        print("Action = ", action)
+        print("Liste des action : ", actions);
         agent.undo(room, action)#on défait l'action
         del(solve_actions[-1])
+        if(ret == 1):#on a trouvé une solution (on sort)
+           return 1
     return 0
 
 def do_solution(room, agent, solve_actions):
-    print("\n\nSOLUTION")
+    print("SOLUTION :")
     print(solve_actions)
     for action in solve_actions:
         agent.do_move(room, action)
