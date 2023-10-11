@@ -5,7 +5,7 @@ import math
 
 
 
-xDim = 20
+xDim = 10
 yDim = 20
 standard_wW = 1700
 standard_hW = 900
@@ -35,6 +35,7 @@ running = True
 
 def init():
     init_boxes(40)
+    init_worker()
     print_board()
     #term_print(board)
 
