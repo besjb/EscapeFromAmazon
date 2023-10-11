@@ -35,8 +35,8 @@ class Agent:
     def action_possible(self,room):
         actions = []
         self.move(room, actions)
-        self.push(room, actions)
-        #self.pull(room, actions)
+        #self.push(room, actions)
+        self.pull(room, actions)
         return actions
     #self.move_box(room)
 
@@ -70,13 +70,13 @@ class Agent:
     def undo_move(self,room,direction):
         match direction:
             case 1:
-                self.do_move(room,'2')
+                self.do_move(room,2)
             case 2:
-                self.do_move(room,'1')
+                self.do_move(room,1)
             case 3:
-                self.do_move(room,'4')
+                self.do_move(room,4)
             case 4:
-                self.do_move(room,'3')
+                self.do_move(room,3)
             case _:
                 return False
 
@@ -340,8 +340,6 @@ class Agent:
                 return False
 
     def undo(self, room, direction):
-        print("Undo affiche")
-        affiche(room)
         if(direction < 5):
             self.undo_move(room, direction)
             return;
@@ -383,7 +381,6 @@ def eval_goal(agent):
 
 def check_box(room, agent):
     if(room[agent.outX][agent.outY] == 3):
-        affiche(room)
         agent.goal += 1
         room[agent.outX][agent.outY] = 0
 
@@ -395,10 +392,10 @@ def print_info_st(agent, room, action):
     affiche(room)
 
 def search_tree(room, agent, solve_actions, save_rooms, depth):
-    if(depth > 2):
-        return 0
+
     if room in save_rooms:#si on a déjà croisé cette room on stop la recherche
-        affiche(room)
+        #affiche(room)
+        print("deja croisée")
         return 0
     room_copy = [row[:] for row in room]
     save_rooms.append(room_copy)#si on n'a pas croisé la room on l'ajoute à save_rooms
@@ -407,23 +404,22 @@ def search_tree(room, agent, solve_actions, save_rooms, depth):
     actions = agent.action_possible(room)#on récupère la liste des action possibles
     for action in actions:
         agent.do(room, action)#on effectue une action
-        print_info_st(agent, room, action)
+        #print_info_st(agent, room, action)
         check_box(room, agent)
         solve_actions.append(action)#on ajoute cette action à la liste de la solution
         ret = search_tree(room, agent, solve_actions, save_rooms, depth+1)#appel récursif prochain fils
-        print("Action = ", action)
-        print("Liste des action : ", actions);
         agent.undo(room, action)#on défait l'action
-        del(solve_actions[-1])
         if(ret == 1):#on a trouvé une solution (on sort)
            return 1
+        del(solve_actions[-1])
     return 0
 
 def do_solution(room, agent, solve_actions):
     print("SOLUTION :")
     print(solve_actions)
+    affiche(room)
     for action in solve_actions:
-        agent.do_move(room, action)
+        agent.do(room, action)
         affiche(room)
 
 def main():
@@ -432,7 +428,7 @@ def main():
     room = [[0 for x in range(dimX)] for y in range(dimY)]
     agent=Agent()
     remplissage(room,1,agent)
-    #affiche(room)
+    affiche(room)
     search_tree(room, agent, solve_actions, save_rooms, 0)
     do_solution(room, agent, solve_actions)
 
