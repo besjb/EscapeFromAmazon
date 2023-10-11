@@ -5,6 +5,10 @@
 #carton = 3
 import random
 import os
+import sys, time, pygame
+import random
+import math
+
 """
 Move :      push :      pull :      move_box N:     S:      O:      E:
     N 1         N 5         N 9             S 13    N 16    E 19    O 22
@@ -13,8 +17,65 @@ Move :      push :      pull :      move_box N:     S:      O:      E:
     E 4         E 8         E 12            
 
 """
-dimX = 3
-dimY = 3
+dimX = 5
+dimY = 5
+
+standard_wW = 1700
+standard_hW = 900
+size_boxe = math.floor(min(standard_hW/dimY, standard_wW/dimX))
+wW = dimX * size_boxe
+hW = dimY * size_boxe
+
+floor_img = pygame.image.load("img/floor.jpg")
+boxe_img = pygame.image.load("img/boxe.jpg")
+worker_img = pygame.image.load("img/worker.jpg")
+
+floor_img = pygame.transform.scale(floor_img, (size_boxe, size_boxe))
+boxe_img = pygame.transform.scale(boxe_img, (size_boxe, size_boxe))
+worker_img = pygame.transform.scale(worker_img, (size_boxe, size_boxe))
+
+img = [floor_img,worker_img ,2,boxe_img, ]
+
+room = [[0 for x in range(dimX)] for y in range(dimY)]
+
+s = pygame.Surface((wW, hW))
+
+# pygame setup
+pygame.init()
+screen = pygame.display.set_mode((wW, hW))
+clock = pygame.time.Clock()
+running = True
+
+def init():
+    init_boxes(40)
+    init_worker()
+    print_room(room)
+    #term_print(room)
+
+def term_print_room():
+    for y in range(dimY):
+        print(room[y])
+
+def print_room():
+    for x in range(dimX):
+        for y in range(dimY):
+            #r = pygame.Rect(x*size_boxe, y*size_boxe, size_boxe, size_boxe)
+            #pygame.draw.rect(s, colors[room[y][x]], r)
+            screen.blit(img[room[y][x]], (x*size_boxe, y*size_boxe))
+
+
+def init_worker():
+    room[dimY-1][random.randint(0, dimX-1)] = 2
+
+def init_boxes(nb_boxes):
+    n = 0
+    while(n<nb_boxes):
+      x = random.randint(0, dimX-1)
+      y = random.randint(0, dimY-1)
+      if(room[y][x] == 0):
+          room[y][x] = 1
+          n += 1
+
 class Agent:
     def __init__(self):
         self.x=0
@@ -35,8 +96,8 @@ class Agent:
     def action_possible(self,room):
         actions = []
         self.move(room, actions)
-        #self.push(room, actions)
-        self.pull(room, actions)
+        self.push(room, actions)
+        #self.pull(room, actions)
         return actions
     #self.move_box(room)
 
@@ -418,18 +479,52 @@ def do_solution(room, agent, solve_actions):
     print("SOLUTION :")
     print(solve_actions)
     affiche(room)
+    print_room()
     for action in solve_actions:
         agent.do(room, action)
         affiche(room)
+        print_room()
 
-def main():
-    solve_actions = []
-    save_rooms = []
-    room = [[0 for x in range(dimX)] for y in range(dimY)]
-    agent=Agent()
-    remplissage(room,1,agent)
+solve_actions = []
+save_rooms = []
+#room = [[0 for x in range(dimX)] for y in range(dimY)]
+agent=Agent()
+remplissage(room,1,agent)
+affiche(room)
+search_tree(room, agent, solve_actions, save_rooms, 0)
+#do_solution(room, agent, solve_actions)
+indice_action=0
+while running:
+    # poll for events
+    # pygame.QUIT event means the user clicked X to close your window
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                #print("Key q has been pressed")
+                running = False
+            if event.key == pygame.K_ESCAPE:
+                #print("Key esc has been pressed")
+                running = False
+
+    # fill the screen with a color to wipe away anything from last frame
+    print("SOLUTION :")
+    print(solve_actions)
     affiche(room)
-    search_tree(room, agent, solve_actions, save_rooms, 0)
-    do_solution(room, agent, solve_actions)
+    print_room()
+    
+    time.sleep(0.1)
+    agent.do(room, solve_actions[indice_action])
+    affiche(room)
+    print_room()
+    if(indice_action<len(solve_actions)):
+        indice_action+=1
+    # RENDER YOUR GAME HERE
 
-main()
+    # flip() the display to put your work on screen
+    pygame.display.flip()
+
+    clock.tick(60)  # limits FPS to 60
+
+pygame.quit()
