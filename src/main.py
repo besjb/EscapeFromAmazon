@@ -8,7 +8,7 @@ import os
 import sys, time, pygame
 import random
 import math
-
+from random import shuffle
 """
 Move :      push :      pull :      move_box N:     S:      O:      E:
     N 1         N 5         N 9             S 13    N 16    E 19    O 22
@@ -17,8 +17,9 @@ Move :      push :      pull :      move_box N:     S:      O:      E:
     E 4         E 8         E 12            
 
 """
-dimX = 5
-dimY = 5
+sys.setrecursionlimit(1000000)
+dimX = 4
+dimY = 4
 
 standard_wW = 1700
 standard_hW = 900
@@ -29,12 +30,12 @@ hW = dimY * size_boxe
 floor_img = pygame.image.load("img/floor.jpg")
 boxe_img = pygame.image.load("img/boxe.jpg")
 worker_img = pygame.image.load("img/worker.jpg")
-
+sortie_img = pygame.image.load("img/sortie.png")
 floor_img = pygame.transform.scale(floor_img, (size_boxe, size_boxe))
 boxe_img = pygame.transform.scale(boxe_img, (size_boxe, size_boxe))
 worker_img = pygame.transform.scale(worker_img, (size_boxe, size_boxe))
-
-img = [floor_img,worker_img ,2,boxe_img, ]
+sortie_img = pygame.transform.scale(sortie_img, (size_boxe, size_boxe))
+img = [floor_img,worker_img ,sortie_img,boxe_img, ]
 
 room = [[0 for x in range(dimX)] for y in range(dimY)]
 
@@ -62,7 +63,7 @@ def print_room():
             #r = pygame.Rect(x*size_boxe, y*size_boxe, size_boxe, size_boxe)
             #pygame.draw.rect(s, colors[room[y][x]], r)
             screen.blit(img[room[y][x]], (x*size_boxe, y*size_boxe))
-
+    screen.blit(img[2], ((dimX-1)*size_boxe, (dimY-1)*size_boxe))
 
 def init_worker():
     room[dimY-1][random.randint(0, dimX-1)] = 2
@@ -95,9 +96,10 @@ class Agent:
     #fonctions remplissage de la liste des actions possible
     def action_possible(self,room):
         actions = []
-        self.move(room, actions)
         self.push(room, actions)
+        self.move(room, actions)
         #self.pull(room, actions)
+        shuffle(actions)
         return actions
     #self.move_box(room)
 
@@ -429,6 +431,11 @@ def remplissage(room,nbCarton,agent):
         room[a][b] = 3
     '''
     room[1][1] = 3
+    room[2][2] = 3
+    #room[3][3] = 3
+    #room[5][4] = 3
+    #room[5][5] = 3
+
     
 def affiche(room):
     for i in room:
@@ -494,7 +501,9 @@ affiche(room)
 search_tree(room, agent, solve_actions, save_rooms, 0)
 #do_solution(room, agent, solve_actions)
 indice_action=0
+print("NB_coups = ", len(solve_actions))
 while running:
+    print(sys.getrecursionlimit())
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -514,11 +523,11 @@ while running:
     affiche(room)
     print_room()
     
-    time.sleep(0.1)
+    time.sleep(0.05)
     agent.do(room, solve_actions[indice_action])
     affiche(room)
     print_room()
-    if(indice_action<len(solve_actions)):
+    if(indice_action<len(solve_actions) - 1):
         indice_action+=1
     # RENDER YOUR GAME HERE
 
