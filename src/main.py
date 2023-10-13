@@ -84,7 +84,7 @@ class Agent:
         self.actions = []
         self.outX = dimX - 1
         self.outY = dimY - 1
-        self.nb_cartons = 10
+        self.nb_cartons = 2
         self.goal = 0
         self.nb_goal = 1
 
@@ -443,11 +443,14 @@ def affiche(room):
     print()
 
 def eval_goal(agent):
+    #print("GOAL ",agent.goal)
     if(agent.goal >= agent.nb_goal):
+        
         return 1
     return 0
 
 def check_box(room, agent):
+    print("check box : ",room[agent.outX][agent.outY] == 3,"   ",room[agent.outX][agent.outY],"   3")
     if(room[agent.outX][agent.outY] == 3):
         agent.goal += 1
         room[agent.outX][agent.outY] = 0
@@ -460,16 +463,17 @@ def print_info_st(agent, room, action):
     affiche(room)
 
 def search_tree(room, agent, solve_actions, save_rooms, depth):
-
     if room in save_rooms:#si on a déjà croisé cette room on stop la recherche
         #affiche(room)
-        print("deja croisée")
+        #print("deja croisée ",depth)
         return 0
     room_copy = [row[:] for row in room]
     save_rooms.append(room_copy)#si on n'a pas croisé la room on l'ajoute à save_rooms
     if(eval_goal(agent) == 1):#le but est remplis
+        print("goal")
         return 1
     actions = agent.action_possible(room)#on récupère la liste des action possibles
+    #print("action : ",solve_actions)
     for action in actions:
         agent.do(room, action)#on effectue une action
         #print_info_st(agent, room, action)
@@ -478,8 +482,10 @@ def search_tree(room, agent, solve_actions, save_rooms, depth):
         ret = search_tree(room, agent, solve_actions, save_rooms, depth+1)#appel récursif prochain fils
         agent.undo(room, action)#on défait l'action
         if(ret == 1):#on a trouvé une solution (on sort)
-           return 1
+            return 1
+        
         del(solve_actions[-1])
+    print("fail")
     return 0
 
 def do_solution(room, agent, solve_actions):
@@ -498,12 +504,14 @@ save_rooms = []
 agent=Agent()
 remplissage(room,1,agent)
 affiche(room)
+
 search_tree(room, agent, solve_actions, save_rooms, 0)
+
 #do_solution(room, agent, solve_actions)
 indice_action=0
 print("NB_coups = ", len(solve_actions))
 while running:
-    print(sys.getrecursionlimit())
+    #print(sys.getrecursionlimit())
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -518,22 +526,51 @@ while running:
                 running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    print("SOLUTION :")
-    print(solve_actions)
-    affiche(room)
+    #print("SOLUTION :")
+    #print(solve_actions)
+    #affiche(room)
     print_room()
     
-    time.sleep(0.05)
-    agent.do(room, solve_actions[indice_action])
-    affiche(room)
+    time.sleep(0.2)
+    if solve_actions != []:
+        agent.do(room, solve_actions[indice_action])
+    #affiche(room)
     print_room()
-    if(indice_action<len(solve_actions) - 1):
+    if(indice_action<=len(solve_actions) - 1):
         indice_action+=1
     # RENDER YOUR GAME HERE
-
+    
+    
+            
     # flip() the display to put your work on screen
     pygame.display.flip()
-
+    #print("soluce : ",solve_actions)
+    if len(solve_actions)-1 < indice_action :
+        #Supprime le carton qui se trouve sur la sortie
+        #print("len ",len(solve_actions))
+        
+        #Met à jour le nombre de cartons
+        
+        
+        if agent.nb_cartons > 0:
+            print("asqs")
+            solve_actions = []
+            save_rooms =  []
+            indice_action = 0
+            agent.goal = 0
+            room[dimX-1][dimY-1]=0
+            agent.nb_cartons-=1
+            print("AVANT ",solve_actions)           
+            search_tree(room, agent, solve_actions, save_rooms, 0)
+            
+            print("APRES ",solve_actions)
+            
+        #print("nbCarton :",agent.nb_cartons)
+        if agent.nb_cartons == 0:
+            if agent.x<dimX-1:
+                agent.do_move(room,2)
+            if agent.y<dimY-1:
+               agent.do_move(room,4)
     clock.tick(60)  # limits FPS to 60
 
 pygame.quit()
